@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.olehprukhnytskyi.macrotracker">
-    <img src="/assets/app.png" alt="Macro Tracker Android App">
+  <a href="https://macrotracker.uk/">
+    <img src="/assets/app.png" alt="Macro Tracker App">
   </a>
 </p>
 
@@ -17,16 +17,19 @@
 
 ***
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/license-All%20rights%20reserved-red?style=for-the-badge)](LICENSE)
+[![Website](https://img.shields.io/badge/Website-macrotracker.uk-2563EB?style=for-the-badge)](https://macrotracker.uk/)
 [![Swagger](https://img.shields.io/badge/Swagger-API_Docs-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://macrotracker.uk/swagger-ui)
-[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-Image-blue?style=for-the-badge&logo=docker)](https://hub.docker.com/repositories/olehprukhnytskyi?search=macro-tracker)
+[![App Store](https://img.shields.io/badge/App_Store-000000?style=for-the-badge&logo=app-store&logoColor=white)](https://apps.apple.com/app/id6812871007)
 [![Google Play](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.olehprukhnytskyi.macrotracker)
 
-**High-performance, distributed platform for nutrition tracking and calorie analysis.**
+**Macro Tracker is a nutrition tracking product for iOS and Android, with tools for logging meals, tracking calories and macros, and reviewing progress.**
 
-Unlike typical CRUD pet projects, Macro Tracker is engineered with **production-grade concerns** in mind: high availability, eventual consistency, distributed tracing, and fault tolerance. The system follows **12-Factor App** principles and is deployed on a bare-metal Kubernetes cluster.
+Explore Macro Tracker on the official website and find the mobile apps on the App Store and Google Play using the links above. The backend microservice repositories are private; this repository provides a public overview of the platform and its architecture.
 
-## :chart_with_upwards_trend: Impact & Performance Metrics
+The mobile apps are backed by a distributed platform that supports **high availability**, eventual consistency, distributed tracing, and fault tolerance. The backend follows **12-Factor App** principles and runs on a bare-metal Kubernetes cluster.
+
+## :chart_with_upwards_trend: Platform Scale & Performance
 
 | Metric                 | Improvement                            | Technical Solution                                                                        |
 |:-----------------------|:---------------------------------------|:------------------------------------------------------------------------------------------|
@@ -39,16 +42,16 @@ Unlike typical CRUD pet projects, Macro Tracker is engineered with **production-
 | **Security**           | :lock: **Reduced Attack Surface**      | Minimized attack surface by using stripped-down Alpine Linux images.                      |
 | **Availability**       | :white_check_mark: **99.9%**           | Redundant pod replicas managed by **Kubernetes HPA** and **Traefik** load balancing.      |
 
-## :rocket: Key Engineering Highlights
+## :rocket: Backend Capabilities
 
-* **High-Volume Data Engine**: Designed a catalog system capable of serving **2.8 Million+ documents** with sub-second fuzzy search latency by offloading read operations from MongoDB to Elasticsearch.
+* **Food Catalog & Search**: The catalog supports **2.8 Million+ documents**, with sub-second fuzzy search powered by Elasticsearch and food data stored in MongoDB.
 * **Transactional Outbox Pattern**: Solves the "Dual Write" problem to ensure eventual consistency between PostgreSQL and Kafka. Guaranteed **zero data loss** even during broker outages.
-* **High-Throughput Processing**: Implemented **Batch Processing** for heavy writes and **Recursive Deletion** strategies to prevent database lock contention and reduce transaction time.
+* **High-Throughput Processing**: **Batch Processing** handles heavy writes, while **Recursive Deletion** strategies limit database lock contention and reduce transaction time.
 * **Resilience**:
     * **Rate Limiting (Redis)**: Protects the system from DDoS and high load spikes.
     * **Idempotency & Retries**: Ensures data integrity during network failures or "double-click" scenarios, preventing duplicate records.
 * **Infrastructure as Code**: Fully automated CI/CD pipelines and Kubernetes manifests for reproducible deployments.
-* **Elastic Scalability**: Implemented **Kubernetes HPA** to auto-scale pods based on real-time CPU/Memory utilization.
+* **Elastic Scalability**: **Kubernetes HPA** scales service replicas based on real-time CPU and memory utilization.
 * **Traefik Ingress**: Manages external access and load balancing, decoupling routing logic from application code.
 * **Bare-Metal Cluster**: Self-managed Kubernetes cluster running on **Alpine Linux** nodes, optimized for minimal resource footprint and hardened security.
 * **Zero Trust Networking**: External access is secured via **Cloudflare Tunnels (Cloudflared)**. This eliminates the need for open firewall ports or static IPs, preventing DDoS attacks and hiding the origin server IP.
@@ -68,9 +71,9 @@ Unlike typical CRUD pet projects, Macro Tracker is engineered with **production-
 
 ---
 
-# :brain: Engineering Decisions & Patterns
+# :brain: Backend Design & Reliability
 
-The architecture leverages a mix of **Enterprise Integration Patterns** and standard **GoF patterns** to ensure modularity and scalability.
+The backend uses asynchronous messaging, transactional outbox publishing, and idempotent request handling to coordinate services and keep data consistent.
 
 ### 1. Data Consistency & Reliability
 * **Transactional Outbox (Polling Publisher)**: To guarantee message delivery without distributed transactions (2PC), changes are first written to an `outbox` table in the same transaction as business data. A background job (using **ShedLock**) asynchronously pushes these events to Kafka.
@@ -97,7 +100,7 @@ The architecture leverages a mix of **Enterprise Integration Patterns** and stan
     * The **API Gateway** acts as an OAuth2 Resource Server and validates signatures using the **Public Key**.
 * **JWKS Endpoint**: Public keys are exposed via the standard `/.well-known/jwks.json` endpoint. This allows zero-downtime key rotation and enables other services (Gateway) to dynamically fetch current verification keys without redeployment.
 * **Social Login Integration**: Server-side validation of Google and Facebook tokens ensures that third-party identity claims are trustworthy before issuing an internal JWT.
-* **Mitigated Confused Deputy Attacks**: Implemented strict OAuth2 Audience (`aud`) validation for Google/Facebook tokens. This ensures the backend accepts strictly those tokens generated for the official Macro Tracker application, preventing identity spoofing from malicious third-party apps.
+* **OAuth2 Audience Validation**: Strict audience (`aud`) validation for Google/Facebook tokens ensures the backend accepts tokens intended for the official Macro Tracker application, protecting against confused deputy attacks.
 * **Optimized Stateless Auth**: Instead of heavy session management, a custom **JWT Filter Chain** performs signature validation at the Gateway level (Edge Authentication), offloading downstream services.
 * **Strategy Pattern for Social Login**: A flexible design that validates OAuth2 tokens (Google, Facebook) server-side, enforcing a strict trust boundary.
 * **Secret Management**: Strict separation of config and code. All sensitive credentials (DB passwords, API keys, OAuth secrets) are managed via **Kubernetes Secrets** and injected into containers as environment variables, ensuring no sensitive data is exposed in the source code.
@@ -111,9 +114,9 @@ The architecture leverages a mix of **Enterprise Integration Patterns** and stan
     * **Standard**: High throughput for read-heavy operations (Food Search).
 
 ### 7. Quality Assurance
-* **True Integration Testing**: Tests do not rely on mocks or embedded databases (H2). **Testcontainers** spin up real ephemeral instances of PostgreSQL, MongoDB, and Redis to guarantee production-like behavior.
+* **Integration Testing**: **Testcontainers** runs isolated instances of PostgreSQL, MongoDB, and Redis to validate service behavior against the databases used in production.
 * **RFC 7807 (Problem Details)**: All services return standardized JSON error responses, making client-side error handling predictable.
-* **Shared Library**: Common DTOs, Utilities, and Exception Handling configurations are extracted into a separate Maven repository to strictly follow DRY.
+* **Shared Library**: Services reuse common DTOs, utilities, and exception handling configurations through a shared Maven library, keeping API contracts and error handling consistent.
 
 ---
 
@@ -140,14 +143,19 @@ The architecture leverages a mix of **Enterprise Integration Patterns** and stan
 
 ---
 
-| Resource       | Description                   | Link                                                                                     |
-|:---------------|:------------------------------|:-----------------------------------------------------------------------------------------|
-| **Swagger UI** | Interactive API Documentation | [Open Docs](https://macrotracker.uk/swagger-ui)                                          |
-| **Docker Hub** | Official Docker Images        | [View Images](https://hub.docker.com/repositories/olehprukhnytskyi?search=macro-tracker) |
+| Resource        | Description                    | Link                                                                                                   |
+|:----------------|:-------------------------------|:-------------------------------------------------------------------------------------------------------|
+| **Website**     | Official Macro Tracker website | [Visit Website](https://macrotracker.uk/)                                                              |
+| **App Store**   | Macro Tracker for iOS          | [View on App Store](https://apps.apple.com/app/id6812871007)                                           |
+| **Google Play** | Macro Tracker for Android      | [View on Google Play](https://play.google.com/store/apps/details?id=com.olehprukhnytskyi.macrotracker) |
+| **Swagger UI**  | Interactive API Documentation  | [Open Docs](https://macrotracker.uk/swagger-ui)                                                        |
 
 > **Note:** For private endpoints, you need to authorize using the `Bearer <token>` scheme.
 
 <p>
+    <a href="https://apps.apple.com/app/id6812871007">
+        <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="54">
+    </a>
     <a href="https://play.google.com/store/apps/details?id=com.olehprukhnytskyi.macrotracker">
         <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80">
     </a>
@@ -157,6 +165,6 @@ The architecture leverages a mix of **Enterprise Integration Patterns** and stan
 
 ## :balance_scale: License
 
-This project and all its associated microservices are distributed under the Apache License 2.0.
+Copyright (c) 2026 Oleh Prukhnytskyi. All rights reserved.
 
-See the [LICENSE](LICENSE) file in each individual repository for details.
+This repository and its contents are proprietary. See [LICENSE](LICENSE) for details.
