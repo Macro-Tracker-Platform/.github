@@ -31,20 +31,20 @@ The mobile apps are backed by a distributed platform that supports **high availa
 
 ## :chart_with_upwards_trend: Platform Scale & Performance
 
-| Metric                 | Improvement                            | Technical Solution                                                                        |
-|:-----------------------|:---------------------------------------|:------------------------------------------------------------------------------------------|
-| **Data Scale**         | :file_folder: **2.8M+ Records**        | Efficient indexing of **2,800,000+** food items via **Elasticsearch** & **MongoDB**.      |
-| **P99 Search Latency** | :zap: **< 400ms**                      | Sub-second fuzzy search across **2.8M+ items** using **Elasticsearch** inverted indexing. |
-| **Infra Costs**        | :moneybag: **Cloud Cost Elimination**  | Deployed high-performance bare-metal infrastructure, eliminating cloud vendor costs.      |
-| **API Latency**        | :arrow_down: **42% Reduction**         | Parallel execution via **Reactive BFF (WebFlux)** vs sequential blocking I/O.             |
-| **Docker Size**        | :arrow_down: **59% Smaller**           | Migrated Java 21 Alpine images from JDK to JRE (from ~170MB to ~70MB).                    |
-| **Deployment**         | :hourglass_flowing_sand: **4x Faster** | **Zero-touch CI/CD** pipeline reduces time-to-production to **< 5 minutes**.              |
-| **Security**           | :lock: **Reduced Attack Surface**      | Minimized attack surface by using stripped-down Alpine Linux images.                      |
-| **Availability**       | :white_check_mark: **99.9%**           | Redundant pod replicas managed by **Kubernetes HPA** and **Traefik** load balancing.      |
+| Metric                 | Improvement                            | Technical Solution                                                                      |
+|:-----------------------|:---------------------------------------|:----------------------------------------------------------------------------------------|
+| **Data Scale**         | :file_folder: **3.5M+ Records**           | Efficient indexing of **2,800,000+** food items via **Elasticsearch** & **MongoDB**.    |
+| **P99 Search Latency** | :zap: **< 400ms**                      | Sub-second fuzzy search across **3.5 items** using **Elasticsearch** inverted indexing.    |
+| **Infra Costs**        | :moneybag: **Cloud Cost Elimination**  | Deployed high-performance bare-metal infrastructure, eliminating cloud vendor costs.    |
+| **API Latency**        | :arrow_down: **42% Reduction**         | Parallel execution via **Reactive BFF (WebFlux)** vs sequential blocking I/O.           |
+| **Docker Size**        | :arrow_down: **59% Smaller**           | Migrated Java 21 Alpine images from JDK to JRE (from ~170MB to ~70MB).                  |
+| **Deployment**         | :hourglass_flowing_sand: **4x Faster** | **Zero-touch CI/CD** pipeline reduces time-to-production to **< 5 minutes**.            |
+| **Security**           | :lock: **Reduced Attack Surface**      | Minimized attack surface by using stripped-down Alpine Linux images.                    |
+| **Availability**       | :white_check_mark: **99.9%**           | Redundant pod replicas managed by **Kubernetes HPA** and **Traefik** load balancing.    |
 
 ## :rocket: Backend Capabilities
 
-* **Food Catalog & Search**: The catalog supports **2.8 Million+ documents**, with sub-second fuzzy search powered by Elasticsearch and food data stored in MongoDB.
+* **Food Catalog & Search**: The catalog supports **3.5 Million+ documents**, with sub-second fuzzy search powered by Elasticsearch and food data stored in MongoDB.
 * **Transactional Outbox Pattern**: Solves the "Dual Write" problem to ensure eventual consistency between PostgreSQL and Kafka. Guaranteed **zero data loss** even during broker outages.
 * **High-Throughput Processing**: **Batch Processing** handles heavy writes, while **Recursive Deletion** strategies limit database lock contention and reduce transaction time.
 * **Resilience**:
